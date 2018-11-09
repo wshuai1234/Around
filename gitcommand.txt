@@ -1,0 +1,34 @@
+git init
+git add main.go
+git commit -m "first initialization"
+git remote add origin https://github.com/wshuai1234/Around.git
+git remote rm origin
+
+
+
+
+git push origin master
+
+code app.yaml
+git add app.yaml
+git commit -m "add app.yaml"
+git push origin master
+
+
+// when changed file
+git add main.go
+git commit -m "second commit"
+git push origin master
+
+
+
+//pull to GAE
+git clone .........
+git pull origin master
+
+gcloud app deploy    ///  deploy to GCE
+
+//  google  cloud shell url!!!
+https://around-221904.appspot.com
+https://around-221904.appspot.com/post
+https://around-221904.appspot.com/search?lat=111&lon=111&range=111 
