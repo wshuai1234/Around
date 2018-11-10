@@ -28,7 +28,7 @@ type Post struct {
 }
 
 const (
-	BUCKET_NAME = "post-images-221904"
+	BUCKET_NAME = "post-images-222119"
 	INDEX       = "around"
 	TYPE        = "post"
 	DISTANCE    = "200km"
@@ -36,7 +36,7 @@ const (
 	//PROJECT_ID = "around-xxx"
 	//BT_INSTANCE = "around-post"
 	// Needs to update this URL if you deploy it to cloud.
-	ES_URL = "http://35.231.187.146:9200"
+	ES_URL = "http://35.188.251.39:9200"
 )
 
 func main() {
