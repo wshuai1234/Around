@@ -12,6 +12,9 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
+	"github.com/auth0/go-jwt-middleware"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/mux"
 	"github.com/pborman/uuid"
 	elastic "gopkg.in/olivere/elastic.v3"
 )
@@ -38,6 +41,8 @@ const (
 	// Needs to update this URL if you deploy it to cloud.
 	ES_URL = "http://35.188.251.39:9200"
 )
+
+var mySigningKey = []byte("secret")
 
 func main() {
 	// Create a client
@@ -72,12 +77,29 @@ func main() {
 	}
 
 	fmt.Println("started-service")
-	http.HandleFunc("/post", handlerPost)
-	http.HandleFunc("/search", handlerSearch)
+
+	r := mux.NewRouter()
+	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return mySigningKey, nil
+		},
+		SigningMethod: jwt.SigningMethodHS256,
+	})
+
+	r.Handle("/post", jwtMiddleware.Handler(http.HandlerFunc(handlerPost))).Methods("POST")
+	r.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(handlerSearch))).Methods("GET")
+	r.Handle("/login", http.HandlerFunc(loginHandler)).Methods("POST")
+	r.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST")
+
+	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func handlerPost(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user")
+    claims := user.(*jwt.Token).Claims
+    username := claims.(jwt.MapClaims)["username"]
+
 	fmt.Println("Received one post request.")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -90,7 +112,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	lon, _ := strconv.ParseFloat(r.FormValue("lon"), 64)
 
 	p := &Post{
-		User:    "1111",
+		User:    username.(string),
 		Message: r.FormValue("message"),
 		Location: Location{
 			Lat: lat,
